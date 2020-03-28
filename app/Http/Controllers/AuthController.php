@@ -1,9 +1,11 @@
 <?php
 namespace App\Http\Controllers;
 
-
+use JWTAuth;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
 
 class AuthController extends Controller
 {
@@ -21,31 +23,29 @@ class AuthController extends Controller
     *
     * @return \Illuminate\Http\JsonResponse
     */
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:5',
-        ]);
+      
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->password = bcrypt($request->password);
+        $user->password = Hash::make($request->password);
         $user->save();
-        return response()->json(['user' => $user]);
+
+        return response()->json(['message' => 'Successfully registered!']);
     }
     /**
     * Get a JWT via given credentials.
     *
     * @return \Illuminate\Http\JsonResponse
     */
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
+        $credentials = $request->only('email', 'password');
         if (! $token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized user'], 401);
         }
+        
         return $this->respondWithToken($token);
     }
     /**
