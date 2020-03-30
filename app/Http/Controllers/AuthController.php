@@ -1,11 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
-// use JWTAuth;
 use App\User;
+use App\Jobs\SendEmailAfterRegistration;
 use Illuminate\Http\Request;
 use App\Http\Requests\RegisterRequest;
-
 use Illuminate\Support\Facades\Hash;
 
 
@@ -20,11 +19,7 @@ class AuthController extends Controller
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
-    /**
-    * Get a JWT via given credentials.
-    *
-    * @return \Illuminate\Http\JsonResponse
-    */
+    
     public function register(RegisterRequest $request)
     {
         $user = new User();
@@ -32,14 +27,11 @@ class AuthController extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->save();
-
+        
+        SendEmailAfterRegistration::dispatch($user);
         return response()->json(['message' => 'Successfully registered!']);
     }
-    /**
-    * Get a JWT via given credentials.
-    *
-    * @return \Illuminate\Http\JsonResponse
-    */
+    
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -50,15 +42,7 @@ class AuthController extends Controller
         
         return $this->respondWithToken($token);
     }
-    /**
-    * Get the authenticated User.
-    *
-    * @return \Illuminate\Http\JsonResponse
-    */
-    public function getAuthUser()
-    {
-        return response()->json(auth('api')->user());
-    }
+
     /**
     * Log the user out (Invalidate the token).
     *
@@ -69,15 +53,7 @@ class AuthController extends Controller
         auth('api')->logout();
         return response()->json(['message' => 'Successfully logged out']);
     }
-    /**
-    * Refresh a token.
-    *
-    * @return \Illuminate\Http\JsonResponse
-    */
-    public function refresh()
-    {
-        return $this->respondWithToken(auth('api')->refresh());
-    }
+
     /**
     * Get the token array structure.
     *
@@ -95,6 +71,7 @@ class AuthController extends Controller
             'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
     }
+    
     public function guard()
     {
         return \Auth::Guard('api');
