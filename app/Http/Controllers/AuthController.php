@@ -1,9 +1,11 @@
 <?php
 namespace App\Http\Controllers;
 
-use JWTAuth;
+// use JWTAuth;
 use App\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\RegisterRequest;
+
 use Illuminate\Support\Facades\Hash;
 
 
@@ -25,7 +27,6 @@ class AuthController extends Controller
     */
     public function register(RegisterRequest $request)
     {
-      
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
@@ -42,9 +43,10 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
-        if (! $token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized user'], 401);
-        }
+            if (! $token = auth('api')->attempt($credentials)) {
+                return response()->json(['error' => 'invalid_credentials'], 401);
+            }
+         
         
         return $this->respondWithToken($token);
     }
@@ -85,8 +87,9 @@ class AuthController extends Controller
     */
     protected function respondWithToken($token)
     {
+
         return response()->json([
-            'access_token' => $token,
+            'token' => $token,
             'user' => $this->guard()->user(),
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60

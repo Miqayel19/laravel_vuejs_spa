@@ -21,17 +21,16 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['prefix' => 'auth'], function () {
     Route::post('/login', 'AuthController@login');
     Route::post('/register', 'AuthController@register');
+    Route::post('/logout', 'AuthController@logout');
+    Route::post('/refresh', 'AuthController@refresh');
+});
 
-    Route::group(['middleware' => 'jwt'], function () {
 
-        Route::post('/logout', 'AuthController@logout');
-        Route::post('/refresh', 'AuthController@refresh');
-        Route::post('/getAuthUser', 'AuthController@getAuthUser');
 
-        Route::get('resumes', 'ResumeController@index');
-        Route::get('resumes/{id}', 'ResumeController@show');
-        Route::post('resumes', 'ResumeController@store');
-        Route::put('resumes/{id}', 'ResumeController@update');
-        Route::delete('resumes/{id}', 'ResumeController@destroy');
-    });
+Route::group(['middleware' => 'auth.jwt'], function () {
+    Route::get('/resumes', 'ResumeController@index');
+    Route::get('/resumes/{id}', 'ResumeController@show');
+    Route::post('/resumes/new/', 'ResumeController@store');
+    Route::put('/resumes/{id}', 'ResumeController@update');
+    Route::delete('/resumes/{id}', 'ResumeController@destroy');
 });

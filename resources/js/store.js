@@ -43,7 +43,7 @@ export default {
         loginSuccess(state,payload){
             state.isLogged = true
             state.auth_error = null
-            state.currentUser = Object.assign({},payload.user,{token:payload.access_token})
+            state.currentUser = Object.assign({},payload.user,{token:payload.token})
             localStorage.setItem('user',JSON.stringify(state.currentUser))
         },
         loginFailed(state,payload){
@@ -61,11 +61,24 @@ export default {
             state.isLogged = false
             localStorage.removeItem('user')
             state.currentUser = null
+        },
+        updateResumes(state,payload){
+            state.resumes = payload  
         }
     },
     actions:{
         login(context){
             context.commit('login')
+        },
+        getResumes(context){
+            axios.get('/api/resumes',{
+                headers:{
+                    'Authorization':`Bearer ${context.state.currentUser.token}`
+                }
+            })
+            .then((response) => {
+                context.commit('updateResumes', response.data.resumes);
+            })
         }
     }
 };

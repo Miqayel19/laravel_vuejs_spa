@@ -4,6 +4,11 @@
             <div class="card">
                 <div class="card-header">Login form</div>
                 <div class="card-body">
+                    <div class="form-group row" v-if="authError">
+                        <p class="error">
+                            {{ authError }}
+                        </p>
+                    </div>
                     <form @submit.prevent="authenticate">
                         <div class="form-group row">
                             <label for="email">Email:</label>
@@ -16,11 +21,6 @@
                         <div class="form-group row">
                             <input type="submit" value="Login">
                         </div>
-                        <div class="form-group row" v-if="authError">
-                            <p class="error">
-                                {{ authError }}
-                            </p>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -32,6 +32,11 @@
     import {login} from '../../auth';
     export default {
         name: "login",
+        computed: {
+            authError() {
+                return this.$store.getters.authError;
+            }
+        },
         data() {
             return {
                 form: {
@@ -54,17 +59,15 @@
                     });
             }
         },
-        computed: {
-            authError() {
-                return this.$store.getters.authError;
-            }
-        }
+        
     }
 </script>
 
 <style scoped>
-.error {
-    text-align: center;
-    color: red;
-}
+
+    .error {
+        text-align: center;
+        color: red;
+    }
+
 </style>

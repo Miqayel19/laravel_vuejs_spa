@@ -17,7 +17,7 @@ class CreateResumesTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->string('name');
-            $table->string('desciption');
+            $table->string('description');
         });
 
         Schema::table('resumes', function($table) {
